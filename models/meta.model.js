@@ -1,6 +1,7 @@
 import { DataTypes } from "sequelize";
 import { sequalize } from "../database.js";
 import Projects from "./project.model.js";
+import User from "./user.model.js";
 
 const Meta = sequalize.define(
   "Meta",
@@ -25,6 +26,15 @@ const Meta = sequalize.define(
     fieldValue: {
       type: DataTypes.TEXT,
       allowNull: false,
+    },
+    createdBy: {
+      type: DataTypes.STRING,
+      references: {
+        model: User,
+        key: "ipv4_address",
+        onDelete: "SET NULL",
+        onUpdate: "SET NULL",
+      },
     },
     createdAt: {
       type: DataTypes.DATE,

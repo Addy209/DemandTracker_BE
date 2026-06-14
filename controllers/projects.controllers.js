@@ -164,3 +164,25 @@ export const fetchStats = async (req, res) => {
     payload: finalStats,
   });
 };
+
+export const getDemandByID = async (req, res) => {
+  const IP = req.ip;
+  const id = req.params.id;
+  try {
+    const result = await Projects.findOne({
+      where: { projectId: id, createdBy: IP },
+    });
+    console.log(result);
+    res.status(200).json({
+      status: true,
+      payload: {
+        ...result.dataValues,
+        statusName: getStatus(result.status),
+      },
+    });
+  } catch (err) {
+    res
+      .status(404)
+      .json({ success: false, msg: "Details for the projectId not found" });
+  }
+};

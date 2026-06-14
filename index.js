@@ -3,6 +3,7 @@ import cors from "cors";
 import userRoutes from "./routes/user.routes.js";
 import statusRoutes from "./routes/status.routes.js";
 import projectsRoutes from "./routes/projects.routes.js";
+import metaRoutes from "./routes/meta.routes.js";
 import dotenv from "dotenv";
 import { connection, sequalize } from "./database.js";
 import Comments from "./models/comments.model.js";
@@ -26,6 +27,7 @@ app.use(express.urlencoded({ limit: "10mb", extended: true }));
 app.use("/api/users", userRoutes);
 app.use("/api/status", statusRoutes);
 app.use("/api/projects", projectsRoutes);
+app.use("/api/meta", metaRoutes);
 
 associations();
 loadStatus();

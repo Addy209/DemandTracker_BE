@@ -46,10 +46,6 @@ const Projects = sequalize.define(
       type: DataTypes.INTEGER,
       allowNull: true,
     },
-    eecDoneAt: {
-      type: DataTypes.DATE,
-      allowNull: true,
-    },
     createdBy: {
       type: DataTypes.STRING,
       references: {
@@ -62,6 +58,9 @@ const Projects = sequalize.define(
     createdAt: {
       type: DataTypes.DATE,
       defaultValue: DataTypes.NOW,
+    },
+    importantDates: {
+      type: DataTypes.JSON,
     },
   },
   {
