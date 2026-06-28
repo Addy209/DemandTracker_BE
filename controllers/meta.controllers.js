@@ -11,7 +11,16 @@ import Meta from "../models/meta.model.js";
 
 export const createMetaEntries = async (req, res) => {
   const metaCreationRequest = req.body;
-  const IP = req.ip;
+  let IP = null;
+
+  if (metaCreationRequest.typeOfRequest === "INTERNAL") {
+    IP = metaCreationRequest.IP;
+    delete metaCreationRequest["IP"];
+    delete metaCreationRequest["typeOfRequest"];
+  } else {
+    IP = req.ip;
+  }
+
   try {
     const result = await Meta.create({
       ...metaCreationRequest,

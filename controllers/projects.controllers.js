@@ -7,6 +7,7 @@ import { Op, Sequelize } from "sequelize";
 import { getStatus } from "../utils.js";
 import dotenv from "dotenv";
 import { cache, getCache, removeCache, setCache } from "../cache.js";
+import axios from "axios";
 
 dotenv.config();
 const ACTIVE_START = parseInt(process.env.ACTIVE_START);
@@ -185,4 +186,56 @@ export const getDemandByID = async (req, res) => {
       .status(404)
       .json({ success: false, msg: "Details for the projectId not found" });
   }
+};
+
+export const updateProjectStatus = async (req, res) => {
+  console.log(req.files);
+
+  const { data } = req.body;
+  const { projectId, newStatus, additionalDetails } = JSON.parse(data);
+  const project = await Projects.findByPk(projectId);
+  if (!project) {
+    res.status(404).json({ status: false, msg: "Project Not Found!" });
+  }
+  let iter = 0;
+  for (let item of additionalDetails) {
+    switch (item.type) {
+      case "DETAIL": {
+        console.log(item.fieldName, item.fieldValue);
+        await axios.post("http://192.168.29.170:5005/api/meta/create", {
+          fieldName: item.fieldName,
+          fieldValue: item.fieldValue,
+          projectId: projectId,
+          IP: req.ip,
+          typeOfRequest: "INTERNAL",
+        });
+        break;
+      }
+      case "DOCUMENT":
+      // {
+      //   console.log(item.fieldName, req.files[iter]);
+      //   iter += 1;
+      //   break;
+      // }
+      case "DOCUMENTS": {
+        const original_iter = iter;
+        for (
+          let i = original_iter;
+          i < original_iter + item.fileCount;
+          i++, iter++
+        ) {
+          console.log(item.fieldName, req.files[i]);
+        }
+        break;
+      }
+    }
+  }
+  const result = await project.update({ status: newStatus });
+  return res.status(200).json({
+    status: true,
+    payload: {
+      ...result.dataValues,
+      statusName: getStatus(result.status),
+    },
+  });
 };
