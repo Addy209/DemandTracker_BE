@@ -13,6 +13,8 @@ dotenv.config();
 const ACTIVE_START = parseInt(process.env.ACTIVE_START);
 const ACTIVE_END = parseInt(process.env.ACTIVE_END);
 const COMPLETED = parseInt(process.env.COMPLETED);
+const FILES_UPLOAD_URL = process.env.FILES_UPLOAD_URL;
+const META_CREATE_URL = process.env.META_CREATE_URL;
 
 export const createProject = async (req, res) => {
   const {
@@ -205,7 +207,7 @@ export const updateProjectStatus = async (req, res) => {
     switch (item.type) {
       case "DETAIL": {
         console.log(item.fieldName, item.fieldValue);
-        await axios.post("http://192.168.29.170:5005/api/meta/create", {
+        await axios.post(META_CREATE_URL, {
           fieldName: item.fieldName,
           fieldValue: item.fieldValue,
           projectId: projectId,
@@ -236,15 +238,11 @@ export const updateProjectStatus = async (req, res) => {
         fd.append("data", JSON.stringify(fields));
         fd.append("projectId", projectId);
         fd.append("IP", req.ip);
-        const result = await axios.post(
-          "http://192.168.29.170:5005/api/files/upload",
-          fd,
-          {
-            headers: {
-              "Content-Type": "multipart/form-data",
-            },
+        const result = await axios.post(FILES_UPLOAD_URL, fd, {
+          headers: {
+            "Content-Type": "multipart/form-data",
           },
-        );
+        });
         break;
       }
     }
