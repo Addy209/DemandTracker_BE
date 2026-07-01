@@ -197,8 +197,11 @@ export const updateProjectStatus = async (req, res) => {
   if (!project) {
     res.status(404).json({ status: false, msg: "Project Not Found!" });
   }
+
   let iter = 0;
   for (let item of additionalDetails) {
+    const fd = new FormData();
+    const fields = [];
     switch (item.type) {
       case "DETAIL": {
         console.log(item.fieldName, item.fieldValue);
@@ -224,8 +227,24 @@ export const updateProjectStatus = async (req, res) => {
           i < original_iter + item.fileCount;
           i++, iter++
         ) {
-          console.log(item.fieldName, req.files[i]);
+          const fileBlob = new Blob([req.files[i].buffer], {
+            type: req.files[i].mimetype,
+          });
+          fd.append("files", fileBlob, req.files[i].originalname);
+          fields.push(item.fieldName);
         }
+        fd.append("data", JSON.stringify(fields));
+        fd.append("projectId", projectId);
+        fd.append("IP", req.ip);
+        const result = await axios.post(
+          "http://192.168.29.170:5005/api/files/upload",
+          fd,
+          {
+            headers: {
+              "Content-Type": "multipart/form-data",
+            },
+          },
+        );
         break;
       }
     }
